@@ -956,10 +956,6 @@ function New-WindowsCloudImage()
                 Add-VirtIODrivers $winImagePath $image $VirtIOBasePath
             }
 			
-			#& Dism.exe /image:${winImagePath} /Get-Feature
-			#if ($ExtraFeatures){
-			#	EnableFeaturesInImage $winImagePath $ExtraFeatures
-			#}
         }
         finally
         {
