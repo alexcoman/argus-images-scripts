@@ -91,10 +91,8 @@
                 <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
                 <HideLocalAccountScreen>true</HideLocalAccountScreen>
                 -->
-				<!--
                 <SkipMachineOOBE>true</SkipMachineOOBE>
                 <SkipUserOOBE>true</SkipUserOOBE>
-                -->
             </OOBE>
             <!-- Use FirstLogonCommands instead of LogonCommands if you don't need to install Windows Updates -->
             <LogonCommands>
@@ -179,8 +177,17 @@
                     <Description>Run Specialize script</Description>
                 </RunSynchronousCommand>
 				<RunSynchronousCommand wcm:action="add">
+<!--                     <Credentials>
+                        <Username>Administrator</Username>
+                        <Password>Passw0rd</Password>
+                    </Credentials>    -->
                     <Order>2</Order>
-                    <Path>powershell -NoLogo -NonInteractive -ExecutionPolicy RemoteSigned -File C:\Windows\Temp\install_git.ps1</Path>
+                    <Path>cmd /c winrm quickconfig -q -transport:http</Path>
+                    <Description>Setup winRM</Description>
+                </RunSynchronousCommand>
+				<RunSynchronousCommand wcm:action="add">
+                    <Order>3</Order>
+                    <Path>powershell -NoLogo -NonInteractive -ExecutionPolicy RemoteSigned -File %SystemDrive%\UnattendResources\install_git.ps1</Path>
                     <Description>Run git install script</Description>
                 </RunSynchronousCommand>
             </RunSynchronous>

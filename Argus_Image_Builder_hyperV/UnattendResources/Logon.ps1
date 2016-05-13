@@ -35,8 +35,8 @@ function Clean-UpdateResources {
     $HOST.UI.RawUI.WindowTitle = "Running update resources cleanup"
     # We're done, disable AutoLogon
 	
-    #Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name Unattend*
-    #Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoLogonCount
+    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" -Name Unattend*
+    Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Name AutoLogonCount
 
     # Cleanup
     Remove-Item -Recurse -Force $resourcesDir
@@ -106,57 +106,39 @@ function Install-WindowsUpdates {
     }
 }
 
+
+
 try
 {
     Import-Module "$resourcesDir\ini.psm1"
     $installUpdates = Get-IniFileValue -Path $configIniPath -Section "DEFAULT" -Key "InstallUpdates" -Default $false -AsBoolean
     $persistDrivers = Get-IniFileValue -Path $configIniPath -Section "DEFAULT" -Key "PersistDriverInstall" -Default $true -AsBoolean
 	
+	# There are cases in which the fallowing line might need to be executed. If the network is for some resons setted to Public winRM can't be configured.
+
+	#Set-NetConnectionProfile -InterfaceIndex (Get-NetConnectionProfile).InterfaceIndex -NetworkCategory Private
 	
-    
-	
-	
+	# Seting up winRM
+    Set-ExecutionPolicy Bypass -Force
+	Enable-PSRemoting -Force -Confirm
+    & "$resourcesDir\SetupWinRMAccess.ps1"
 	
     if ($installUpdates) {
         Install-WindowsUpdates
 		Clean-WindowsUpdates -PurgeUpdates $purgeUpdates
     }
 
-    
-
-    #$Host.UI.RawUI.WindowTitle = "Installing Cloudbase-Init..."
-    
-    #$programFilesDir = $ENV:ProgramFiles
-
-    #$CloudbaseInitMsiPath = "$resourcesDir\CloudbaseInit.msi"
-    #$CloudbaseInitMsiLog = "$resourcesDir\CloudbaseInit.log"
-
-    #$serialPortName = @(Get-WmiObject Win32_SerialPort)[0].DeviceId
-
-    #$p = Start-Process -Wait -PassThru -FilePath msiexec -ArgumentList "/i $CloudbaseInitMsiPath /qn /l*v $CloudbaseInitMsiLog LOGGINGSERIALPORTNAME=$serialPortName"
-    #if ($p.ExitCode -ne 0)
-    #{
-    #    throw "Installing $CloudbaseInitMsiPath failed. Log: $CloudbaseInitMsiLog"
-    #}
-
-    #$Host.UI.RawUI.WindowTitle = "Running SetSetupComplete..."
-    #& "$programFilesDir\Cloudbase Solutions\Cloudbase-Init\bin\SetSetupComplete.cmd"
-
     #Run-Defragment
-
+	
     Clean-UpdateResources
 
-    #Release-IP
-
-    #$Host.UI.RawUI.WindowTitle = "Running Sysprep..."
-    #$unattendedXmlPath = "$programFilesDir\Cloudbase Solutions\Cloudbase-Init\conf\Unattend.xml"
-    #Set-PersistDrivers -Path $unattendedXmlPath -Persist:$persistDrivers
-    #& "$ENV:SystemRoot\System32\Sysprep\Sysprep.exe" `/generalize `/oobe `/shutdown `/unattend:"$unattendedXmlPath"
-	
 	$Host.UI.RawUI.WindowTitle = "Running Sysprep..."        
     $unattendXMLUrl = "https://raw.githubusercontent.com/stefan-caraiman/windows-openstack-imaging-tools/master/Unattend64.xml"
 	$unattendXMLPath = "$ENV:Temp\Unattend.xml"
 	(new-object System.Net.WebClient).DownloadFile($unattendXMLUrl, $unattendXMLPath)
+	
+	Release-IP
+	
 	& "$ENV:SystemRoot\System32\Sysprep\Sysprep.exe" `/generalize `/oobe `/shutdown `/unattend:"$unattendXMLPath"
 }
 catch
