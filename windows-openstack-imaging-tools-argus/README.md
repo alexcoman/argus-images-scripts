@@ -5,15 +5,21 @@ Tools to automate the creation of a Windows image for OpenStack, supporting KVM,
 
 Supports any version of Windows starting with Windows 2008 and Windows Vista.
 
-Note: the provided Autounattend.xml targets x64 versions, but it can be easily adapted to x86.
+Note: the provided Autounattend.xml targets x64 versions, and the Autounattend.xml_32bit targets x86 version 
 
 
 
 ### How to create a Windows template image on KVM
+### This process was previously done successfully on a Ubuntu Server 14.04
+## Note: Check that you have KVM installed on the machine, if not, run the following command
+
+`sudo apt-get install qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils`
 
 
 Download the VirtIO tools ISO, e.g. from:
-http://alt.fedoraproject.org/pub/alt/virtio-win/latest/images/bin/
+https://fedoraproject.org/wiki/Windows_Virtio_Drivers#Direct_download
+
+For generating versions of Windows 10 or later, the latest Virtio Drivers should be used.
 
 You'll need also your Windows installation ISO. In the following example we'll use a Windows Server 2012 R2 
 evaluation.
@@ -33,7 +39,7 @@ evaluation.
     $KVM -m 2048 -smp 2 -cdrom $ISO -drive file=$VIRTIO_ISO,index=3,media=cdrom -fda $FLOPPY $IMAGE -boot d -vga std -k en-us -vnc :1
 
 Now you can just wait for the KVM command to exit. You can also connect to the VM via VNC on port 5901 to check 
-the status, no user interaction is required.
+the status, no user interaction is required.For connecting to the VM you can use TightVNC,the Remote Host address having the following format: `host-ip:port` 
 
 Note: if you plan to connect remotely via VNC, make sure that the KVM host firewall allows traffic
 on this port, e.g.:
