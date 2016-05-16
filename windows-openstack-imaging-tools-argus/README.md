@@ -5,23 +5,28 @@ Tools to automate the creation of a Windows image for OpenStack, supporting KVM,
 
 Supports any version of Windows starting with Windows 2008 and Windows Vista.
 
-Note: the provided Autounattend.xml targets x64 versions, and the Autounattend.xml_32bit targets x86 version 
+Note: the provided Autounattend.xml targets x64 versions and the Autounattend.xml_32bit targets x86 version 
 
+The steps are as it follows:
+1. Modify the Autounattend.xml for your specific Windows version(key,users to create etc.)
+2.Run ./create_img.sh (make sure to run as sudo)
+3.Modify the create-autounattend-floppy.sh scripts
+4.Run ./create-autounattend-floppy.sh as sudo
 
 
 ### How to create a Windows template image on KVM
 ### This process was previously done successfully on a Ubuntu Server 14.04
-## Note: Check that you have KVM installed on the machine, if not, run the following command
-
+### Note: Check that you have KVM installed on the machine, if not, run the following command
 `sudo apt-get install qemu-kvm libvirt-bin ubuntu-vm-builder bridge-utils`
 
 
 Download the VirtIO tools ISO, e.g. from:
 https://fedoraproject.org/wiki/Windows_Virtio_Drivers#Direct_download
 
-For generating versions of Windows 10 or later, the latest Virtio Drivers should be used.
+For generating versions of Windows 10 or later(such as Nano Server), the w8.1 version of the drivers should work perfectly fine too.
+In case the drivers do not install correctly on those versions, the latest version of the Virtio drivers should be used.As if for now(May 2016) the stable version(0.1.102) doesn't offer drivers for Windows version sooner than W8.1 .
 
-You'll need also your Windows installation ISO. In the following example we'll use a Windows Server 2012 R2 
+You'll also need a Windows installation ISO. In the following example we'll use a Windows Server 2012 R2 
 evaluation.
 
     IMAGE=windows-server-2012-r2.qcow2
