@@ -1,9 +1,7 @@
 $ErrorActionPreference = "Inquire"
 
-
-
 # Configure WinRM
-function ShouldInstallWinRMHttpListener() {
+function Install-WinRMHttpListener() {
     $httpListener = Get-Item -Path wsman:\localhost\listener\* | where {$_.Keys.Contains("Transport=HTTP")}
     if ($httpListener) {
         return $False
@@ -12,7 +10,7 @@ function ShouldInstallWinRMHttpListener() {
 }
 
 
-if (ShouldInstallWinRMHttpListener) {
+if (Install-WinRMHttpListener) {
     & winrm create winrm/config/Listener?Address=*+Transport=HTTP `@`{Hostname=`"$($ENV:COMPUTERNAME)`"`}
     if ($LastExitCode) { throw "Failed to setup WinRM HTTP listener" }
 }
